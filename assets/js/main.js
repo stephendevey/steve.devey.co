@@ -420,4 +420,22 @@
 			$main._show(location.hash.substr(1), true);
 		});
 
+	// Easter Egg Tracking
+	$('.easter-egg').on('click', function () {
+		fetch('https://formsubmit.co/36352f6e460f850b1b7934aaa691f156', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				_subject: 'Easter Egg Discovered!',
+				message: 'Someone found the flight simulator easter egg!'
+			}),
+			keepalive: true
+		}).catch(function (err) {
+			console.log('Tracking failed', err);
+		});
+	});
+
 })(jQuery);

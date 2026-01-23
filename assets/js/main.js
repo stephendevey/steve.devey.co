@@ -68,6 +68,14 @@
 		event.stopPropagation();
 	});
 
+	// Prevent scrolling when clicking active link
+	$nav.on('click', 'a', function (event) {
+		var href = $(this).attr('href');
+		if (href === location.hash) {
+			event.preventDefault();
+		}
+	});
+
 	// Active State Handling
 	function updateActiveNav() {
 		var hash = location.hash;

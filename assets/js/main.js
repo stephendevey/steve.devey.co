@@ -63,6 +63,11 @@
 		$nav_li.eq(($nav_li.length / 2)).addClass('is-middle');
 	}
 
+	// Prevent body click (close) when clicking Nav
+	$nav.on('click', function (event) {
+		event.stopPropagation();
+	});
+
 	// Active State Handling
 	function updateActiveNav() {
 		var hash = location.hash;

@@ -29,6 +29,15 @@
 
 <body class="is-preload">
 
+    <!--
+        Tarpit bait. Hidden from humans and from assistive technology, and
+        disallowed in robots.txt, so only a crawler that ignores both will
+        follow it. /trap/ redirects to a Nepenthes maze.
+    -->
+    <a href="/trap/" aria-hidden="true" tabindex="-1" rel="nofollow noopener"
+       style="display:none !important; visibility:hidden !important">Site archive</a>
+
+
     <!-- Terminal Easter Egg -->
     <div id="terminal-container">
         <div id="terminal-output">Welcome to SteveOS v1.0. Type 'help' for commands.</div>

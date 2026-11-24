@@ -420,6 +420,40 @@
 			$main._show(location.hash.substr(1), true);
 		});
 
+	// Contact form: send in the background so the visitor stays on the page.
+	// Without JavaScript the form still posts normally and _next brings them back.
+	$('#contact-form').on('submit', function (event) {
+		event.preventDefault();
+		var form = this,
+			$button = $(form).find('button[type="submit"]'),
+			$status = $('#contact-status');
+
+		$button.prop('disabled', true).text('Sending...');
+		$status.text('');
+
+		fetch('https://formsubmit.co/ajax/36352f6e460f850b1b7934aaa691f156', {
+			method: 'POST',
+			headers: { 'Accept': 'application/json' },
+			body: new FormData(form)
+		})
+			.then(function (response) {
+				return response.json().then(function (data) {
+					if (!response.ok || String(data.success) !== 'true')
+						throw new Error(data.message || 'Send failed');
+				});
+			})
+			.then(function () {
+				form.reset();
+				$status.text('Thanks! Your message has been sent.');
+			})
+			.catch(function () {
+				$status.text('Sorry, that did not send. Please try again in a moment.');
+			})
+			.finally(function () {
+				$button.prop('disabled', false).text('Send');
+			});
+	});
+
 	// Easter Egg Tracking
 	$('.easter-egg').on('click', function () {
 		fetch('https://formsubmit.co/36352f6e460f850b1b7934aaa691f156', {

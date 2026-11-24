@@ -430,7 +430,8 @@
 
 		var data = new FormData(form),
 			thanks = 'Thanks! Your message has been sent.',
-			done = false;
+			done = false,
+			thanked = false;
 
 		$button.prop('disabled', true).text('Sending...');
 		$status.text('');
@@ -440,6 +441,7 @@
 		// If it then fails, the message is replaced with an error.
 		var early = setTimeout(function () {
 			if (done) return;
+			thanked = true;
 			form.reset();
 			$status.text(thanks);
 			$button.prop('disabled', false).text('Send');
@@ -458,7 +460,7 @@
 				});
 			})
 			.then(function () {
-				form.reset();
+				if (!thanked) form.reset();  // don't wipe a second message being typed
 				$status.text(thanks);
 			})
 			.catch(function () {

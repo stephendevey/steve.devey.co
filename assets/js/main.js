@@ -420,75 +420,57 @@
 			$main._show(location.hash.substr(1), true);
 		});
 
-	// Contact form: send in the background so the visitor stays on the page.
-	// Without JavaScript the form still posts normally and _next brings them back.
+	// Contact form and easter-egg ping both go to a small Cloudflare Worker
+	// (worker/contact.js) that emails them via Cloudflare Email Routing.
+	var CONTACT_URL = 'https://devey-contact.stephendevey.workers.dev';
+
+	// Send in the background so the visitor stays on the page. Without
+	// JavaScript the form posts normally and the Worker redirects back.
 	$('#contact-form').on('submit', function (event) {
 		event.preventDefault();
 		var form = this,
 			$button = $(form).find('button[type="submit"]'),
 			$status = $('#contact-status');
 
-		var data = new FormData(form),
-			thanks = 'Thanks! Your message has been sent.',
-			done = false,
-			thanked = false;
-
 		$button.prop('disabled', true).text('Sending...');
 		$status.text('');
 
-		// FormSubmit can take a minute to answer, so say thanks after a
-		// couple of seconds and let the send finish in the background.
-		// If it then fails, the message is replaced with an error.
-		var early = setTimeout(function () {
-			if (done) return;
-			thanked = true;
-			form.reset();
-			$status.text(thanks);
-			$button.prop('disabled', false).text('Send');
-		}, 2500);
-
-		fetch('https://formsubmit.co/ajax/36352f6e460f850b1b7934aaa691f156', {
+		fetch(CONTACT_URL, {
 			method: 'POST',
 			headers: { 'Accept': 'application/json' },
-			body: data,
-			keepalive: true
+			body: new FormData(form)
 		})
 			.then(function (response) {
 				return response.json().then(function (result) {
-					if (!response.ok || String(result.success) !== 'true')
+					if (!response.ok || result.success !== true)
 						throw new Error(result.message || 'Send failed');
 				});
 			})
 			.then(function () {
-				if (!thanked) form.reset();  // don't wipe a second message being typed
-				$status.text(thanks);
+				form.reset();
+				$status.text('Thanks! Your message has been sent.');
 			})
 			.catch(function () {
 				$status.text('Sorry, that did not send. Please try again in a moment.');
 			})
 			.finally(function () {
-				done = true;
-				clearTimeout(early);
 				$button.prop('disabled', false).text('Send');
 			});
 	});
 
 	// Easter Egg Tracking
 	$('.easter-egg').on('click', function () {
-		fetch('https://formsubmit.co/36352f6e460f850b1b7934aaa691f156', {
+		var data = new FormData();
+		data.append('type', 'easter-egg');
+		fetch(CONTACT_URL, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				_subject: 'Easter Egg Discovered!',
-				message: 'Someone found the flight simulator easter egg!'
-			}),
+			headers: { 'Accept': 'application/json' },
+			body: data,
 			keepalive: true
 		}).catch(function (err) {
 			console.log('Tracking failed', err);
 		});
+	});
 	});
 
 })(jQuery);

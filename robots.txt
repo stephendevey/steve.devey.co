@@ -50,3 +50,5 @@ Disallow: /
 # ---------------------------------------------------------------
 User-agent: *
 Disallow: /trap/
+
+Sitemap: https://devey.co/sitemap.xml

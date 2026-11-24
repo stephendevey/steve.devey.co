@@ -428,28 +428,45 @@
 			$button = $(form).find('button[type="submit"]'),
 			$status = $('#contact-status');
 
+		var data = new FormData(form),
+			thanks = 'Thanks! Your message has been sent.',
+			done = false;
+
 		$button.prop('disabled', true).text('Sending...');
 		$status.text('');
+
+		// FormSubmit can take a minute to answer, so say thanks after a
+		// couple of seconds and let the send finish in the background.
+		// If it then fails, the message is replaced with an error.
+		var early = setTimeout(function () {
+			if (done) return;
+			form.reset();
+			$status.text(thanks);
+			$button.prop('disabled', false).text('Send');
+		}, 2500);
 
 		fetch('https://formsubmit.co/ajax/36352f6e460f850b1b7934aaa691f156', {
 			method: 'POST',
 			headers: { 'Accept': 'application/json' },
-			body: new FormData(form)
+			body: data,
+			keepalive: true
 		})
 			.then(function (response) {
-				return response.json().then(function (data) {
-					if (!response.ok || String(data.success) !== 'true')
-						throw new Error(data.message || 'Send failed');
+				return response.json().then(function (result) {
+					if (!response.ok || String(result.success) !== 'true')
+						throw new Error(result.message || 'Send failed');
 				});
 			})
 			.then(function () {
 				form.reset();
-				$status.text('Thanks! Your message has been sent.');
+				$status.text(thanks);
 			})
 			.catch(function () {
 				$status.text('Sorry, that did not send. Please try again in a moment.');
 			})
 			.finally(function () {
+				done = true;
+				clearTimeout(early);
 				$button.prop('disabled', false).text('Send');
 			});
 	});

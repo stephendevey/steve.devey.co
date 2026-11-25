@@ -471,6 +471,5 @@
 			console.log('Tracking failed', err);
 		});
 	});
-	});
 
 })(jQuery);
